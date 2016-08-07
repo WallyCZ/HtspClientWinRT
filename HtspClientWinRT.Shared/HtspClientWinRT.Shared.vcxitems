@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{f1f1f3f4-3273-42ef-98fb-7804d86363db}</ItemsProjectGuid>
+    <ItemsRootNamespace>HtspSession</ItemsRootNamespace>
+    <ItemsProjectName>Wally.HtspClient.Shared</ItemsProjectName>
+    <CodeSharingProject>248F659F-DAC5-46E8-AC09-60EC9FC95053</CodeSharingProject>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\include\HtspDataExt.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\include\InteropUtils.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\include\scope_guard.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)CritSec.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HtspClient.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)common.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)htsmessage.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HtspData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HtspFileStream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HtspMsgQueue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HtspQueue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HtspSource.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)pch.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)sha1.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)HtspClient.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)common.cpp">
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)htsmessage.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)HtspFileStream.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)HtspMsgQueue.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)HtspSource.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)HtspQueue.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)sha1.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+</Project>
