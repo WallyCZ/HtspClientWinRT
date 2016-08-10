@@ -1050,50 +1050,64 @@ bool HtspClient::ProcessEventMsg(HtsMessage msg)
 	{
 		f_process = [this, msg]()
 		{
-			QueueStatusInfo^ qinfo = ref new QueueStatusInfo();
+			try
+			{
+				QueueStatusInfo^ qinfo = ref new QueueStatusInfo();
 
-			std::shared_ptr<HtsMap> map = msg.getRoot();
+				std::shared_ptr<HtsMap> map = msg.getRoot();
 
-			qinfo->subscriptionId = map->getU32("subscriptionId");
-			qinfo->bytes = map->getU32("bytes");
-			qinfo->packets = map->getU32("packets");
-			qinfo->Idrops = map->getU32("Idrops");
-			qinfo->Pdrops = map->getU32("Pdrops");
-			qinfo->Bdrops = map->getU32("Bdrops");
-			qinfo->delay = map->getU32("delay");
-			qinfo->delta = map->getS64("delta");
-			QueueStatusEvent(this, qinfo);
+				qinfo->subscriptionId = map->getU32("subscriptionId");
+				qinfo->bytes = map->getU32("bytes");
+				qinfo->packets = map->getU32("packets");
+				qinfo->Idrops = map->getU32("Idrops");
+				qinfo->Pdrops = map->getU32("Pdrops");
+				qinfo->Bdrops = map->getU32("Bdrops");
+				qinfo->delay = map->getU32("delay");
+				qinfo->delta = map->getS64("delta");
+				QueueStatusEvent(this, qinfo);
+			}
+			catch (...)
+			{
+				this->m_logger->Warn("Processing message queueStatus failed");
+			}
 		};
 	}
 	else if (method == "signalStatus")
 	{
 		f_process = [this, msg]()
 		{
-			SignalStatusInfo^ qinfo = ref new SignalStatusInfo();
-
-			std::shared_ptr<HtsMap> map = msg.getRoot();
-
-			//DumpMessage(msg.getRoot().get());
-
-			qinfo->subscriptionId = map->getU32("subscriptionId");
-			qinfo->feStatus = InteropUtils::MarshalStringUtf8(map->getStr("feStatus"));
-			qinfo->feSNR = map->getU32("feSNR");
-			qinfo->feSignal = map->getU32("feSignal");
-			qinfo->feBER = map->getU32("feBER");
-			qinfo->feUNC = map->getU32("feUNC");
-			SignalStatusEvent(this, qinfo);
-
-			m_mtxSubscriptions.lock();
-
-			for (auto it = m_subscriptions.begin(); it != m_subscriptions.end(); ++it)
+			try
 			{
-				if (it->publicInfo->subscriptionId == qinfo->subscriptionId)
+				SignalStatusInfo^ qinfo = ref new SignalStatusInfo();
+
+				std::shared_ptr<HtsMap> map = msg.getRoot();
+
+				//DumpMessage(msg.getRoot().get());
+
+				qinfo->subscriptionId = map->getU32("subscriptionId");
+				qinfo->feStatus = InteropUtils::MarshalStringUtf8(map->getStr("feStatus"));
+				qinfo->feSNR = map->getU32("feSNR");
+				qinfo->feSignal = map->getU32("feSignal");
+				qinfo->feBER = map->getU32("feBER");
+				qinfo->feUNC = map->getU32("feUNC");
+				SignalStatusEvent(this, qinfo);
+
+				m_mtxSubscriptions.lock();
+
+				for (auto it = m_subscriptions.begin(); it != m_subscriptions.end(); ++it)
 				{
-					it->publicInfo->signalStatus = qinfo;
-					break;
+					if (it->publicInfo->subscriptionId == qinfo->subscriptionId)
+					{
+						it->publicInfo->signalStatus = qinfo;
+						break;
+					}
 				}
+				m_mtxSubscriptions.unlock();
 			}
-			m_mtxSubscriptions.unlock();
+			catch (...)
+			{
+				this->m_logger->Warn("Processing message signalStatus failed");
+			}
 		};
 
 	}
@@ -1101,13 +1115,21 @@ bool HtspClient::ProcessEventMsg(HtsMessage msg)
 	{
 		f_process = [this, msg]()
 		{
-			if (msg.getRoot()->contains("channelId"))
+			try
 			{
+				if (msg.getRoot()->contains("channelId"))
+				{
 
-				ChannelInfo^ chl = MakeChannelInfoFromMsg(msg);
+					ChannelInfo^ chl = MakeChannelInfoFromMsg(msg);
 
-				ChannelUpdateEvent(this, chl);
+					ChannelUpdateEvent(this, chl);
+				}
 			}
+			catch (...)
+			{
+				this->m_logger->Warn("Processing message channelUpdate failed");
+			}
+
 		};
 	}
 	else if (method == "timeshiftStatus")
@@ -1121,18 +1143,25 @@ bool HtspClient::ProcessEventMsg(HtsMessage msg)
 	{
 		f_process = [method, this, msg]()
 		{
-			if (msg.getRoot()->contains("tagId"))
+			try
 			{
-				auto tag = MakeTagInfoFromMsg(msg);
+				if (msg.getRoot()->contains("tagId"))
+				{
+					auto tag = MakeTagInfoFromMsg(msg);
 
-				if (method == "tagAdd")
-					tag->operation = Operation::New;
-				else if (method == "tagDelete")
-					tag->operation = Operation::Delete;
-				else
-					tag->operation = Operation::Update;
+					if (method == "tagAdd")
+						tag->operation = Operation::New;
+					else if (method == "tagDelete")
+						tag->operation = Operation::Delete;
+					else
+						tag->operation = Operation::Update;
 
-				TagUpdateEvent(this, tag);
+					TagUpdateEvent(this, tag);
+				}
+			}
+			catch (...)
+			{
+				this->m_logger->Warn("Processing message tagAdd/tagUpdate/tagDelete failed");
 			}
 		};
 	}
@@ -1140,18 +1169,25 @@ bool HtspClient::ProcessEventMsg(HtsMessage msg)
 	{
 		f_process = [method, this, msg]()
 		{
-			if (msg.getRoot()->contains("id"))
+			try
 			{
-				auto dvr = MakeDVREventInfoFromMsg(msg);
+				if (msg.getRoot()->contains("id"))
+				{
+					auto dvr = MakeDVREventInfoFromMsg(msg);
 
-				if (method == "dvrEntryAdd")
-					dvr->operation = Operation::New;
-				else if (method == "dvrEntryDelete")
-					dvr->operation = Operation::Delete;
-				else
-					dvr->operation = Operation::Update;
+					if (method == "dvrEntryAdd")
+						dvr->operation = Operation::New;
+					else if (method == "dvrEntryDelete")
+						dvr->operation = Operation::Delete;
+					else
+						dvr->operation = Operation::Update;
 
-				DVREntryUpdateEvent(this, dvr);
+					DVREntryUpdateEvent(this, dvr);
+				}
+			}
+			catch (...)
+			{
+				this->m_logger->Warn("Processing message dvrEntryAdd/dvrEntryUpdate/dvrEntryDelete failed");
 			}
 		};
 	}
